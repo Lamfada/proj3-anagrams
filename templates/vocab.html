@@ -78,17 +78,18 @@
   </div> <!-- col -->
 </div> <!-- row -->
 <br />
+
 <div class="row">
   <div class="col-xs-6 text-center">
-  <form id="entry" method="POST" action="/_check">
+  <form id="entry">
     <label for="attempt">Word:</label>
     <input id="attempt" name="attempt" type="text" width="15"
       autocomplete="off"  autofocus />
-    <input type="submit" name="try" />
   </form>
 </div></div>
 
-<br />
+<p id="response"> </p>  <!-- JavaScript will insert text here -->
+
 
 {% if session.matches|length is not equalto 0  %}
 <h2>You found </h2>
@@ -99,15 +100,45 @@
 </p>
 {% endif %}
 
+<script>
+// Suppress normal form submission
+$("#entry").submit( function(event) {
+   event.preventDefault();
+  });
+// On each keystroke, ask the server whether the current 
+// word is long enough. 
+// (We use 'keyup' because the form value
+// is updated before that event is generated.  keypress doesn't work.)
+//
+$("#attempt").keyup(function() {
+   var txt = $("#attempt").val();
+   $.getJSON( "/_check", { text: txt }, 
+              function(data) {
+                rsnew = data.result.new;
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <!-- Mismatch, already found, etc. "flashed" from Python -->
-    {% for message in messages %}
-      <p class="message">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+                rsin = data.result.invalid;
+                rsold = data.result.old;
+                rscom = data.result.complete;
+                if (rscom) {
+                   $("#response").html("That's enough!");
+                   $("#attempt").val("");
+                   window.location .replace("./success");
+
+                } else if (rsnew){
+                   $("#response").html("Found a match!");
+                   $("#attempt").val("");
+                } else if (rsin){
+                   $("#response").html("You've chosen a letter that isn't available!");
+                } else if (rsold){
+                   $("#response").html("You already found that word");
+                }else {
+                   $("#response").html("");
+                }
+               }
+           );
+   });
+</script>
+
 
 
 
