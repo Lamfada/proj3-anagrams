@@ -89,7 +89,7 @@
 </div></div>
 
 <p id="response"> </p>  <!-- JavaScript will insert text here -->
-
+<p id="fnd"> </p>
 
 {% if session.matches|length is not equalto 0  %}
 <h2>You found </h2>
@@ -126,6 +126,9 @@ $("#attempt").keyup(function() {
 
                 } else if (rsnew){
                    $("#response").html("Found a match!");
+                   $("#fnd").append(" You found '");
+                   $("#fnd").append(document.getElementById("attempt").value);
+                   $("#fnd").append("'");
                    $("#attempt").val("");
                 } else if (rsin){
                    $("#response").html("You've chosen a letter that isn't available!");
